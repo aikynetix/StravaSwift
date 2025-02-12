@@ -16,6 +16,17 @@ import SafariServices
  StravaClient responsible for making all api requests
 */
 open class StravaClient: NSObject {
+    
+    enum Error: LocalizedError {
+        case unexpectedError
+        
+        var localizedDescription: String {
+            switch self {
+            default:
+                return "Something went wrong, please retry now or later."
+            }
+        }
+    }
 
     /**
      Access the shared instance
@@ -25,7 +36,7 @@ open class StravaClient: NSObject {
     fileprivate override init() {}
     fileprivate var config: StravaConfig?
 
-    public typealias AuthorizationHandler = (Swift.Result<OAuthToken, Error>) -> ()
+    public typealias AuthorizationHandler = (Swift.Result<OAuthToken, Swift.Error>) -> ()
     fileprivate var currentAuthorizationHandler: AuthorizationHandler?
     fileprivate var authSession: NSObject?  // Holds a reference to ASWebAuthenticationSession / SFAuthenticationSession depending on iOS version
 
@@ -169,9 +180,14 @@ extension StravaClient: ASWebAuthenticationPresentationContextProviding {
         do {
             try oauthRequest(Router.token(code: code))?.responseStrava { [weak self] (response: DataResponse<OAuthToken>) in
                 guard let self = self else { return }
-                let token = response.result.value!
-                self.config?.delegate.set(token)
-                result(.success(token))
+                if let token = response.result.value {
+                    self.config?.delegate.set(token)
+                    result(.success(token))
+                } else if let error = response.error {
+                    result(.failure(error))
+                } else {
+                    result(.failure(Error.unexpectedError))
+                }
             }
         } catch let error as NSError {
             result(.failure(error))
