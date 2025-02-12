@@ -16,17 +16,6 @@ import SafariServices
  StravaClient responsible for making all api requests
 */
 open class StravaClient: NSObject {
-    
-    enum Error: LocalizedError {
-        case unexpectedError
-        
-        var localizedDescription: String {
-            switch self {
-            default:
-                return "Something went wrong, please retry now or later."
-            }
-        }
-    }
 
     /**
      Access the shared instance
@@ -36,7 +25,7 @@ open class StravaClient: NSObject {
     fileprivate override init() {}
     fileprivate var config: StravaConfig?
 
-    public typealias AuthorizationHandler = (Swift.Result<OAuthToken, Swift.Error>) -> ()
+    public typealias AuthorizationHandler = (Swift.Result<OAuthToken, Error>) -> ()
     fileprivate var currentAuthorizationHandler: AuthorizationHandler?
     fileprivate var authSession: NSObject?  // Holds a reference to ASWebAuthenticationSession / SFAuthenticationSession depending on iOS version
 
@@ -186,7 +175,7 @@ extension StravaClient: ASWebAuthenticationPresentationContextProviding {
                 } else if let error = response.error {
                     result(.failure(error))
                 } else {
-                    result(.failure(Error.unexpectedError))
+                    result(.failure(self.generateError(failureReason: "No valid token", response: nil)))
                 }
             }
         } catch let error as NSError {
