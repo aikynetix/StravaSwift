@@ -70,7 +70,7 @@ public struct UploadData {
 /**
  Upload status
  **/
-public final class UploadStatus: Strava {
+public final class UploadStatus: Strava, StravaModel {
     public let id: Int?
     public let externalId: String?
     public let error: String?
