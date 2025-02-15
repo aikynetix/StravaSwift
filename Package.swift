@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "StravaSwift", targets: ["StravaSwift"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "4.9.0"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.10.2"),
         .package(url: "https://github.com/SwiftyJSON/SwiftyJSON.git", from: "5.0.0"),
     ],
     targets: [
